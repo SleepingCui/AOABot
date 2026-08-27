@@ -19,7 +19,7 @@ def draw_scatter(ax, meta, stats, outlier_quantile=0.005):
   y_all = [
       item[0]
       for item in offsets
-      if not math.isnan(item[0]) and item[1] not in (8, 9)
+      if not math.isnan(item[0]) and item[1] not in (8, 9, 30)
   ]
   if not y_all:
     y_all = [item[0] for item in offsets if not math.isnan(item[0])]
@@ -144,7 +144,7 @@ def draw_distribution(ax, meta, stats, outlier_quantile=0.005):
   valid_offsets = [
       item[0]
       for item in meta["offsets"]
-      if not math.isnan(item[0]) and item[1] not in (8, 9)
+      if not math.isnan(item[0]) and item[1] not in (8, 9, 30)
   ]
   if not valid_offsets:
     valid_offsets = [
@@ -254,7 +254,7 @@ def draw_pie(ax, meta, stats, is_combined=False):
       "XPerfect": (counts[12], "#38E8FF"),
       "Auto": (counts[10], "#FFFFFF"),
       "Multipress": (counts[7], "#00FFFF"),
-      "Overload/Miss": (counts[8] + counts[9], "#E56BFF"),
+      "Overload/Miss": (counts[8] + counts[9] + counts[30], "#E56BFF"),
   }
 
   labels, values, colors = [], [], []
@@ -316,7 +316,7 @@ def draw_pie(ax, meta, stats, is_combined=False):
 
 def draw_xacc(ax, meta, stats):
   offsets = meta["offsets"]
-  valid_types = [0, 1, 2, 3, 4, 5, 8, 9, 12, 10]
+  valid_types = [0, 1, 2, 3, 4, 5, 8, 9, 12, 10, 30]
 
   xacc_data = []
   running_sum = 0.0
@@ -325,7 +325,7 @@ def draw_xacc(ax, meta, stats):
   for item in offsets:
     t = item[1]
     if t in valid_types:
-      if t in (8, 9):
+      if t in (8, 9, 30):
         w = JD_WEIGHTS["failMiss"]
       elif t == 0:
         w = JD_WEIGHTS["tooEarly"]

@@ -14,7 +14,7 @@ def calculate_stats(meta):
   std_dev = math.sqrt(var)
   ur = std_dev * 10.0
 
-  counts = {i: 0 for i in range(13)}
+  counts = {i: 0 for i in range(31)}
   for item in offsets:
     counts[item[1]] += 1
 
@@ -46,7 +46,7 @@ def calculate_stats(meta):
     else:
       cur_combo = 0
 
-  fail_miss_sum = counts[8] + counts[9]
+  fail_miss_sum = counts[8] + counts[9] + counts[30]
   judgements = [
       fail_miss_sum,
       counts[0],

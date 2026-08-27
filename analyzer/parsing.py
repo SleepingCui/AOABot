@@ -247,7 +247,7 @@ def parse_crpl2_data(data, filename):
   offsets = []
   for a in hit_curr_angles:
     ms = a * (60000.0 / (bpm * 2 * math.pi)) if bpm > 0 else 0.0
-    offsets.append([round(ms, 4), 3])
+    offsets.append([round(ms, 4), 30])
 
   return {
       "songName": s.get("song_name", "Unknown"),

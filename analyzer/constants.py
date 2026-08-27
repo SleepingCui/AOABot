@@ -11,10 +11,11 @@ MARGIN_MAP = {
     9: {"label": "FailOverload", "color": "#E56BFF"},
     10: {"label": "Auto", "color": "#FFFFFF"}, 
     11: {"label": "OverPress", "color": "#E56BFF"},
-    12: {"label": "XPerfect", "color": "#38E8FF"},  
+    12: {"label": "XPerfect", "color": "#38E8FF"},
+    30: {"label": "Unknown", "color": "#FFFFFF"},
 }
 
-DISPLAY_ORDER = [9, 0, 1, 2, 12, 3, 4, 5, 7, 8, 10]
+DISPLAY_ORDER = [9, 0, 1, 2, 12, 3, 4, 5, 7, 8, 10, 30]
 
 JD_WEIGHTS = {
     "failMiss": 0.0,
