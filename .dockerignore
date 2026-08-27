@@ -1,0 +1,13 @@
+venv/
+__pycache__/
+*.py[cod]
+.git/
+.gitignore
+.claude/
+config.yml
+config.example.yml
+data/
+logs/
+*.bak
+*.png
+*.txt
