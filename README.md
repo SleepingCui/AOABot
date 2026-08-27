@@ -19,7 +19,7 @@ pip install -r requirements.txt
 python -m cli record.tlog
 
 # 将所有图表拼合为一张大图
-python -m acli record.tlog --combined
+python -m cli record.tlog --combined
 
 # 指定图表类型
 python -m cli record.json -c scatter
