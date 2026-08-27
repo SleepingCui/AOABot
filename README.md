@@ -5,6 +5,8 @@
 ## 安装
 
 ```bash
+git clone https://github.com/SleepingCui/AOABot.git
+cd AOABot
 pip install -r requirements.txt
 ```
 
@@ -28,7 +30,14 @@ python -m cli record.json -c scatter
 
 ```bash
 python -m main
-# 编辑 `config.yml`，填入你的机器人 `token`，然后重新启动：
+# 编辑 config.yml，填入你的机器人token，然后重新启动
 ```
 
 支持的文件格式： tlog,tlog.gz,json,crpl2
+
+## ScreenShots
+<img width="929" height="919" alt="屏幕截图 2026-08-27 194850" src="https://github.com/user-attachments/assets/9662d3c6-838e-4b3a-a60a-ec75f1c788f2" />
+<img width="939" height="854" alt="屏幕截图 2026-08-27 194754" src="https://github.com/user-attachments/assets/00fd0cf5-e603-4184-aff3-ab1698192518" />
+
+## License
+MIT
