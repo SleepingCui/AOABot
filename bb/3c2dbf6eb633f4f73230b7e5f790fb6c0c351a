@@ -1,0 +1,36 @@
+.gitignore
+  h_acd8c3a33a52ed 9
+analyzer/parsing.py
+  s_315e564674e7a0::t_b3881cdc6493a9 250
+analyzer/constants.py
+  s_315e564674e7a0::t_f0eec8b0e7659d 14-15,18
+analyzer/stats.py
+  s_315e564674e7a0::t_5ad94f03412e3f 17
+  s_315e564674e7a0::t_5cd89a35fa19db 49
+analyzer/plotting.py
+  s_315e564674e7a0::t_18728fc16781de 328
+  s_315e564674e7a0::t_480c5002f22649 22,147
+  s_315e564674e7a0::t_2f8d73e6d93022 257
+  s_315e564674e7a0::t_9301a71f8f9814 319
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "bb3c2dbf6eb633f4f73230b7e5f790fb6c0c351a",
+  "prompts": {},
+  "humans": {
+    "h_acd8c3a33a52ed": {
+      "author": "SleepingCui <130898297+SleepingCui@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_315e564674e7a0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "407ba4d3-9049-458d-ac02-9f4a86f096eb",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "SleepingCui <130898297+SleepingCui@users.noreply.github.com>"
+    }
+  }
+}
