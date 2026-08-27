@@ -1,0 +1,54 @@
+README.md
+  h_acd8c3a33a52ed 1-34
+.gitignore
+  h_acd8c3a33a52ed 1-8
+LICENSE
+  h_acd8c3a33a52ed 1-8
+__init__.py
+  h_acd8c3a33a52ed 1
+__main__.py
+  h_acd8c3a33a52ed 1-4
+_version.py
+  h_acd8c3a33a52ed 1
+analyzer/__init__.py
+  h_acd8c3a33a52ed 1-36
+analyzer/constants.py
+  h_acd8c3a33a52ed 1-29
+analyzer/parsing.py
+  h_acd8c3a33a52ed 1-308
+analyzer/plotting.py
+  h_acd8c3a33a52ed 1-411
+analyzer/stats.py
+  h_acd8c3a33a52ed 1-94
+analyzer/text_report.py
+  h_acd8c3a33a52ed 1-54
+cli.py
+  h_acd8c3a33a52ed 1-142
+cogs/admin.py
+  h_acd8c3a33a52ed 1-28
+cogs/analyze.py
+  h_acd8c3a33a52ed 1-108
+cogs/general.py
+  h_acd8c3a33a52ed 1-61
+config.py
+  h_acd8c3a33a52ed 1-91
+main.py
+  h_acd8c3a33a52ed 1-56
+requirements.txt
+  h_acd8c3a33a52ed 1-5
+services/analyzer.py
+  h_acd8c3a33a52ed 1-123
+utils/files.py
+  h_acd8c3a33a52ed 1-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "e75afcd7713479da20469380a6a77a48b4f68d31",
+  "prompts": {},
+  "humans": {
+    "h_acd8c3a33a52ed": {
+      "author": "SleepingCui <130898297+SleepingCui@users.noreply.github.com>"
+    }
+  }
+}
