@@ -69,9 +69,9 @@ async def setup(bot):
     await bot.add_cog(XxxCog(bot))
 ```
 
-把文件放进 `cogs/` 即可，启动时 `main.py` 会自动发现并加载
+把文件放进 `cogs/` 即可，启动时会自动加载
 
-**命令必须加入 `allowed_commands` 才能被使用**（白名单检查在 `main.py` 的 `whitelist_check`）
+**命令必须加入 `allowed_commands` 才能被使用**
 
 
 ## License
