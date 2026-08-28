@@ -1,20 +1,25 @@
 import io
+import logging
 
 import discord
 from discord.ext import commands
 
 from services.analyzer import VALID_CHART_TYPES, build_report_async
 
+logger = logging.getLogger(__name__)
+
 VALID_EXTENSIONS = (".tlog", ".gz", ".json", ".crpl2")
 
 
 class AnalyzeCog(commands.Cog, name="Analyze"):
+    """ADOFAI record analysis commands."""
 
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(name="analyze", aliases=["an", "adofai"])
     async def analyze_record(self, ctx, chart_type: str = "combined"):
+        """Analyze an uploaded play record file and generate offset charts."""
         chart_type = chart_type.lower()
         if chart_type not in VALID_CHART_TYPES:
             await ctx.send(
@@ -37,19 +42,23 @@ class AnalyzeCog(commands.Cog, name="Analyze"):
 
 
         status_msg = await ctx.send("Parsing, please wait...")
+        logger.info("%s requested analysis: %s (chart=%s) in %s",ctx.author, attachment.filename, chart_type, ctx.channel,)
         try:
             file_bytes = await attachment.read()
             result = await build_report_async(
                 file_bytes, attachment.filename, chart_type
             )
         except ValueError as e:
+            logger.warning("Parse failed for %s: %s", attachment.filename, e)
             await status_msg.edit(content=f"**Parse failed**: `{e}`")
             return
         except Exception as e:
+            logger.exception("Err analyzing %s (chart=%s)", attachment.filename, chart_type)
             await status_msg.edit(content=f"**An error occurred**: `{e}`")
             return
 
         meta, stats = result["meta"], result["stats"]
+        logger.info(f"done: {attachment.filename}")
 
         if result["png"] is None:
             txt_file = discord.File(
@@ -73,7 +82,7 @@ class AnalyzeCog(commands.Cog, name="Analyze"):
         ]
 
         embed = discord.Embed(
-            title=f"🎵 {meta.get('songName', 'Unknown Level')}",
+            title={meta.get('songName', 'Unknown Level')},
             description=f"**Version**: `{meta.get('versionText', 'N/A')}`",
             color=0x3498DB,
         )

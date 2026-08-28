@@ -4,7 +4,7 @@ services:
     image: aoabot
     container_name: aoabot
     restart: unless-stopped
-    # Mount a host config.yml (with your real token). Create it first:
-    #   cp config.example.yml config.yml   # then edit the token
+    # Mount a host config.yml (with your real token). If it's missing the
+    # bot auto-generates a default one, prints the path, and exits.
     volumes:
       - ./config.yml:/app/config.yml

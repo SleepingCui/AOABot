@@ -1,11 +1,14 @@
 
 import asyncio
 import io
+import logging
 from datetime import datetime
 
 import matplotlib.pyplot as plt
 
 from analyzer import analyze, generate_info_txt
+
+logger = logging.getLogger(__name__)
 from analyzer.plotting import (
     draw_distribution,
     draw_info,
@@ -89,6 +92,8 @@ def build_report(file_bytes: bytes, filename: str, chart_type: str = "combined")
         raise ValueError(
             f"Unknown chart type `{chart_type}`. Available: `{', '.join(VALID_CHART_TYPES)}`"
         )
+
+    logger.info("%s (chart=%s)", filename, chart_type)
 
     with temp_record_file(file_bytes, filename) as tmp_path:
         meta, stats = analyze(tmp_path)

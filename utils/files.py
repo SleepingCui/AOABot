@@ -1,6 +1,9 @@
+import logging
 import os
 import tempfile
 from contextlib import contextmanager
+
+logger = logging.getLogger(__name__)
 
 
 @contextmanager
@@ -16,5 +19,6 @@ def temp_record_file(file_bytes: bytes, filename: str):
         if tmp_path and os.path.exists(tmp_path):
             try:
                 os.remove(tmp_path)
+                logger.debug("removed temp file: %s", tmp_path)
             except OSError:
                 pass

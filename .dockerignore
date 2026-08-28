@@ -5,7 +5,6 @@ __pycache__/
 .gitignore
 .claude/
 config.yml
-config.example.yml
 data/
 logs/
 *.bak
