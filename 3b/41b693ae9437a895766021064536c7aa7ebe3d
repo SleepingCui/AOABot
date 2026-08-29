@@ -1,0 +1,49 @@
+analyzer/decode.py
+  h_acd8c3a33a52ed 18
+  s_b5d1e2c42ff372::t_ae1c834945d942 1-9,11,14-15,26-28,30,32-35,47-49,51,53-55,57,59-62,64,66-71
+  s_b5d1e2c42ff372::t_cf5558549f53bd 10,12-13,16-17,19-25,29,31,36-46,50,52,56,58,63,65,72-76
+cogs/analyze.py
+  s_b5d1e2c42ff372::t_ce5b8320cc157d 1,4,9,15
+  s_b5d1e2c42ff372::t_b579c1de6253c0 121,154,156,162,166
+  s_b5d1e2c42ff372::t_7ad47b7a32d882 119-120,122-153,155,157-159,161,163-165,167
+  h_acd8c3a33a52ed 73,160
+analyzer/parsing.py
+  s_b5d1e2c42ff372::t_f21844ceefd41b 137-140
+  s_b5d1e2c42ff372::t_de58728ef0e156 243-247,250-275,299
+  s_b5d1e2c42ff372::t_c2e63e0ef1ef6f 94,127-128
+  s_b5d1e2c42ff372::t_dfcec9f74a91e5 145-146,160-235,292-298,300-301,304-313,315
+cogs/general.py
+  s_b5d1e2c42ff372::t_5f3a48a361958a 33-35
+config.py
+  s_b5d1e2c42ff372::t_a1730b18c98a8b 45
+  s_b5d1e2c42ff372::t_7189a863f9ab17 19
+analyzer/__init__.py
+  s_b5d1e2c42ff372::t_52f11b5972576d 39
+  s_b5d1e2c42ff372::t_77cfb44eb80b9d 7-8
+  s_b5d1e2c42ff372::t_f9148be1c9ea1f 32-33
+  s_b5d1e2c42ff372::t_7e074a53ab51f7 2
+README.md
+  h_acd8c3a33a52ed 40
+  s_b5d1e2c42ff372::t_234c1a09b419bb 38-39,41-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "3b41b693ae9437a895766021064536c7aa7ebe3d",
+  "prompts": {},
+  "humans": {
+    "h_acd8c3a33a52ed": {
+      "author": "SleepingCui <130898297+SleepingCui@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_b5d1e2c42ff372": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7b173113-51c9-41f7-aed2-db85ef1501a2",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "SleepingCui <130898297+SleepingCui@users.noreply.github.com>"
+    }
+  }
+}
