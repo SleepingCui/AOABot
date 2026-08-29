@@ -35,6 +35,11 @@ python -m main
 
 支持的文件格式： tlog,tlog.gz,json,crpl2
 
+支持的命令：
+- `!analyze` — 分析上传的记录文件并生成偏移图表
+- `!decode` — 解码上传的 tlog / tlog.gz / crpl2 文件并返回json
+- `!help` / `!ping` / `!botinfo`
+
 ## ScreenShots
 <img width="929" height="919" alt="屏幕截图 2026-08-27 194850" src="https://github.com/user-attachments/assets/9662d3c6-838e-4b3a-a60a-ec75f1c788f2" />
 <img width="939" height="854" alt="屏幕截图 2026-08-27 194754" src="https://github.com/user-attachments/assets/00fd0cf5-e603-4184-aff3-ab1698192518" />

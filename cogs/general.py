@@ -30,7 +30,9 @@ class GeneralCog(commands.Cog, name="General"):
             for cmd in sorted(cmds, key=lambda c: c.name):
                 lines.append(f"`!{cmd.name}` — {cmd.help or 'No description'}")
         lines.append("")
-        lines.append("Upload a record file and send `!analyze` to start analyzing.")
+        lines.append(
+            "Upload a record file and send `!analyze` to analyze it, or `!decode` to get its raw decoded contents."
+        )
         await ctx.send("\n".join(lines))
 
     @commands.command(name="botinfo", aliases=["info", "about"])

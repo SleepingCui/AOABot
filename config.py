@@ -16,6 +16,7 @@ prefix: "!"
 
 allowed_commands:
   - analyze
+  - decode
   - ping
   - help
   - botinfo
@@ -41,7 +42,7 @@ class Config:
     token: str = "your-token-here"
     prefix: str = "!"
     allowed_commands: list = field(
-        default_factory=lambda: ["analyze", "ping", "help", "botinfo", "reload", "shutdown"]
+        default_factory=lambda: ["analyze", "decode", "ping", "help", "botinfo", "reload", "shutdown"]
     )
     owner_ids: list = field(default_factory=list)
     proxy: ProxyConfig = field(default_factory=ProxyConfig)

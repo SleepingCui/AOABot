@@ -91,7 +91,7 @@ def convert_to_ms(offsets, is_angle, bpm, speed, pitch):
   return res
 
 
-def parse_tlog_data(data):
+def parse_tlog_data(data, convert=True):
   offset = 0
   magic = data[offset : offset + 4].decode("ascii", errors="ignore")
   if magic != "TSMZ":
@@ -124,7 +124,8 @@ def parse_tlog_data(data):
   else:
     raise ValueError(f"Unsupported version: {version}")
 
-  offsets = convert_to_ms(offsets, is_angle, bpm, speed, pitch)
+  if convert:
+    offsets = convert_to_ms(offsets, is_angle, bpm, speed, pitch)
 
   return {
       "songName": song_name,
@@ -133,12 +134,16 @@ def parse_tlog_data(data):
       "versionText": (
           "1.8.2- (v1)" if version == 1 else f"1.9.0+ (v{version})"
       ),
+      "bpm": bpm,
+      "speed": speed,
+      "pitch": pitch,
+      "isAngle": is_angle,
       "offsets": offsets,
   }
 
 
-def parse_crpl2_data(data, filename):
-
+def decrypt_crpl2(data):
+  """Decrypt a CRP2 payload, stripping PKCS#7 padding."""
   if len(data) < 8 or data[:4] != b"CRP2":
     raise ValueError("Not a valid CRP2 file")
 
@@ -152,87 +157,121 @@ def parse_crpl2_data(data, filename):
   pad = plaintext[-1]
   if 1 <= pad <= 16 and plaintext[-pad:] == bytes([pad]) * pad:
     plaintext = plaintext[:-pad]
+  return plaintext
 
-  class BinaryReader:
 
-    def __init__(self, buf):
-      self.buf = buf
-      self.offset = 0
+class _BinaryReader:
 
-    def read_int32(self):
-      val = struct.unpack_from("<i", self.buf, self.offset)[0]
-      self.offset += 4
-      return val
+  def __init__(self, buf):
+    self.buf = buf
+    self.offset = 0
 
-    def read_double(self):
-      val = struct.unpack_from("<d", self.buf, self.offset)[0]
-      self.offset += 8
-      return val
+  def read_int32(self):
+    val = struct.unpack_from("<i", self.buf, self.offset)[0]
+    self.offset += 4
+    return val
 
-    def read_byte(self):
-      val = self.buf[self.offset]
-      self.offset += 1
-      return val
+  def read_double(self):
+    val = struct.unpack_from("<d", self.buf, self.offset)[0]
+    self.offset += 8
+    return val
 
-    def read_ushort(self):
-      val = struct.unpack_from("<H", self.buf, self.offset)[0]
-      self.offset += 2
-      return val
+  def read_byte(self):
+    val = self.buf[self.offset]
+    self.offset += 1
+    return val
 
-    def read_float(self):
-      val = struct.unpack_from("<f", self.buf, self.offset)[0]
-      self.offset += 4
-      return val
+  def read_ushort(self):
+    val = struct.unpack_from("<H", self.buf, self.offset)[0]
+    self.offset += 2
+    return val
 
-    def read_bool(self):
-      return self.read_byte() != 0
+  def read_float(self):
+    val = struct.unpack_from("<f", self.buf, self.offset)[0]
+    self.offset += 4
+    return val
 
-    def read_string(self):
-      length, shift = 0, 0
-      while True:
-        b = self.read_byte()
-        length |= (b & 0x7F) << shift
-        if (b & 0x80) == 0:
-          break
-        shift += 7
-      s = self.buf[self.offset : self.offset + length].decode(
-          "utf-8", errors="replace"
-      )
-      self.offset += length
-      return s
+  def read_bool(self):
+    return self.read_byte() != 0
 
-    def read_str_dict(self):
-      cnt = self.read_int32()
-      return {self.read_string(): self.read_string() for _ in range(cnt)}
+  def read_string(self):
+    length, shift = 0, 0
+    while True:
+      b = self.read_byte()
+      length |= (b & 0x7F) << shift
+      if (b & 0x80) == 0:
+        break
+      shift += 7
+    s = self.buf[self.offset : self.offset + length].decode(
+        "utf-8", errors="replace"
+    )
+    self.offset += length
+    return s
 
-    def read_bool_dict(self):
-      cnt = self.read_int32()
-      return {self.read_string(): self.read_bool() for _ in range(cnt)}
+  def read_str_dict(self):
+    cnt = self.read_int32()
+    return {self.read_string(): self.read_string() for _ in range(cnt)}
 
-    def read_int_dict(self):
-      cnt = self.read_int32()
-      return {self.read_string(): self.read_int32() for _ in range(cnt)}
+  def read_bool_dict(self):
+    cnt = self.read_int32()
+    return {self.read_string(): self.read_bool() for _ in range(cnt)}
 
-    def read_double_dict(self):
-      cnt = self.read_int32()
-      return {self.read_string(): self.read_double() for _ in range(cnt)}
+  def read_int_dict(self):
+    cnt = self.read_int32()
+    return {self.read_string(): self.read_int32() for _ in range(cnt)}
 
-    def read_list(self, fn):
-      cnt = self.read_int32()
-      return [fn() for _ in range(cnt)]
+  def read_double_dict(self):
+    cnt = self.read_int32()
+    return {self.read_string(): self.read_double() for _ in range(cnt)}
 
-  r = BinaryReader(plaintext)
+  def read_list(self, fn):
+    cnt = self.read_int32()
+    return [fn() for _ in range(cnt)]
+
+
+def parse_crpl2_full(data, filename):
+  """Decode a CRP2 file into a dict of every field it stores."""
+  plaintext = decrypt_crpl2(data)
+  r = _BinaryReader(plaintext)
+
   format_version = r.read_int32()
   s = r.read_str_dict()
   b = r.read_bool_dict()
   i = r.read_int_dict()
   d = r.read_double_dict()
 
-  _ = r.read_list(r.read_ushort)
-  _ = r.read_list(r.read_int32)
-  _ = r.read_list(r.read_double)
-  _ = r.read_list(r.read_int32)
+  # The arrays that every creplay record carries (in file order).
+  key_codes = r.read_list(r.read_ushort)
+  key_presses = r.read_list(r.read_int32)
+  key_song_positions = r.read_list(r.read_double)
+  hit_current_floor_ids = r.read_list(r.read_int32)
   hit_curr_angles = r.read_list(r.read_double)
+
+  arrays = {
+      "keyCodes": key_codes,
+      "keyPresses": key_presses,
+      "keySongPositions": key_song_positions,
+      "hitCurrentFloorIDs": hit_current_floor_ids,
+      "hitCurrAngles": hit_curr_angles,
+  }
+
+  # Extended arrays introduced on newer creplay versions; read best-effort.
+  if format_version >= 2:
+    for name, reader in (
+        ("hitOverloadCounters", r.read_double),
+        ("hitNoFailHits", r.read_int32),
+        ("hitIsAutos", r.read_int32),
+        ("hitNextFloorAutos", r.read_int32),
+        ("hitCachedAngles", r.read_double),
+        ("hitTargetExitAngles", r.read_double),
+        ("hitMidspinInfiniteMargins", r.read_int32),
+        ("hitRDCautos", r.read_int32),
+        ("hitCurFreeRoamSections", r.read_int32),
+    ):
+      try:
+        arrays[name] = r.read_list(reader)
+      except Exception:
+        break
 
   bpm = d.get("bpm", 100.0)
 
@@ -250,11 +289,30 @@ def parse_crpl2_data(data, filename):
     offsets.append([round(ms, 4), 30])
 
   return {
+      "formatVersion": format_version,
+      "strDict": s,
+      "boolDict": b,
+      "intDict": i,
+      "doubleDict": d,
+      "bpm": bpm,
+      "timestamp": ts,
+      "arrays": arrays,
+      "hitAngles": hit_curr_angles,
+      "offsets": offsets,
       "songName": s.get("song_name", "Unknown"),
       "levelPath": s.get("level_path", ""),
-      "timestamp": ts,
+  }
+
+
+def parse_crpl2_data(data, filename):
+  """Parse a CRP2 file into the common record meta/offsets shape."""
+  full = parse_crpl2_full(data, filename)
+  return {
+      "songName": full["songName"],
+      "levelPath": full["levelPath"],
+      "timestamp": full["timestamp"],
       "versionText": "CRPL2",
-      "offsets": offsets,
+      "offsets": full["offsets"],
   }
 
 

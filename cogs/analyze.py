@@ -1,14 +1,18 @@
+import asyncio
 import io
 import logging
+import os
 
 import discord
 from discord.ext import commands
 
+from analyzer import decode_file
 from services.analyzer import VALID_CHART_TYPES, build_report_async
 
 logger = logging.getLogger(__name__)
 
 VALID_EXTENSIONS = (".tlog", ".gz", ".json", ".crpl2")
+DECODE_EXTENSIONS = (".tlog", ".gz", ".crpl2")
 
 
 class AnalyzeCog(commands.Cog, name="Analyze"):
@@ -66,7 +70,7 @@ class AnalyzeCog(commands.Cog, name="Analyze"):
                 filename=f"{meta.get('songName', 'report')}_info.txt",
             )
             await status_msg.edit(
-                content=f"📊 **{meta.get('songName', 'Unknown')}**"
+                content=f"**{meta.get('songName', 'Unknown')}**"
             )
             await ctx.send(file=txt_file)
             return
@@ -111,6 +115,55 @@ class AnalyzeCog(commands.Cog, name="Analyze"):
 
         await status_msg.delete()
         await ctx.send(embed=embed, files=files_to_send)
+
+    @commands.command(name="decode", aliases=["dc"])
+    async def decode_record(self, ctx):
+        """Decode an uploaded tlog/tlog.gz/crpl2 file and return its raw JSON."""
+        if not ctx.message.attachments:
+            await ctx.send(
+                "**Please upload the play record file when sending the command** "
+                "(supported: `.tlog` / `.tlog.gz` / `.crpl2`)"
+            )
+            return
+
+        attachment = ctx.message.attachments[0]
+        if not attachment.filename.lower().endswith(DECODE_EXTENSIONS):
+            await ctx.send(
+                f"Unsupported file format! Only supported: `{' / '.join(DECODE_EXTENSIONS)}`"
+            )
+            return
+
+        status_msg = await ctx.send("Decoding, please wait...")
+        logger.info("%s requested decode: %s in %s", ctx.author, attachment.filename, ctx.channel)
+        try:
+            file_bytes = await attachment.read()
+            result = await asyncio.to_thread(
+                decode_file, file_bytes, attachment.filename
+            )
+        except ValueError as e:
+            logger.warning("Decode failed for %s: %s", attachment.filename, e)
+            await status_msg.edit(content=f"**Decode failed**: `{e}`")
+            return
+        except Exception as e:
+            logger.exception("Err decoding %s", attachment.filename)
+            await status_msg.edit(content=f"**An error occurred**: `{e}`")
+            return
+
+        meta = result["meta"]
+        base = os.path.splitext(attachment.filename)[0]
+        json_file = discord.File(
+            fp=io.BytesIO(result["text"].encode("utf-8")),
+            filename=f"{base}_decoded.json",
+        )
+        await status_msg.edit(
+            content=(
+                f"Done — `{attachment.filename}`\n"
+                f"Song: `{meta.get('songName', 'Unknown')}` | "
+                f"Format: `{meta.get('versionText', 'N/A')}` | "
+                f"Entries: `{meta.get('total', 0):,}`"
+            )
+        )
+        await ctx.send(file=json_file)
 
 
 async def setup(bot):
