@@ -1,5 +1,12 @@
 import math
 
+import matplotlib
+
+# Render headlessly. Without this, matplotlib defaults to TkAgg on Windows and builds a
+# Tk root inside the worker thread that asyncio.to_thread runs analysis on -- which floods
+# shutdown with "main thread is not in main loop" errors and can leave the thread wedged.
+matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 import numpy as np
 

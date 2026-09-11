@@ -1,4 +1,6 @@
 import logging
+import os
+import sys
 
 from discord.ext import commands
 
@@ -45,7 +47,17 @@ class AdminCog(commands.Cog, name="Admin"):
     async def shutdown_cmd(self, ctx):
         """Stop the bot and close the connection."""
         await ctx.send("Shutting down the bot...")
+        logger.info("Shutdown requested by %s in %s", ctx.author, ctx.channel)
         await self.bot.close()
+
+        # bot.close() has already sent the gateway close frame and shut the HTTP session
+        # down, so nothing is left to clean up. Exit hard instead of unwinding into
+        # interpreter shutdown: a stuck thread in the executor would otherwise keep the
+        # process alive (and win us a five-minute wait on thread joins).
+        logging.shutdown()
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os._exit(0)
 
 
 async def setup(bot):

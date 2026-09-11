@@ -14,6 +14,35 @@ logger = logging.getLogger(__name__)
 VALID_EXTENSIONS = (".tlog", ".gz", ".json", ".crpl2")
 DECODE_EXTENSIONS = (".tlog", ".gz", ".crpl2")
 
+MAX_MESSAGE_LEN = 2000
+MAX_CHUNK_LEN = MAX_MESSAGE_LEN - 100
+
+
+def _split_for_discord(text, max_len=MAX_CHUNK_LEN):
+    """Split text into chunks that fit in one Discord message, preferring line breaks."""
+    chunks, current = [], ""
+    for line in text.splitlines(keepends=True):
+        while len(line) > max_len:
+            if current:
+                chunks.append(current)
+                current = ""
+            chunks.append(line[:max_len])
+            line = line[max_len:]
+        if len(current) + len(line) > max_len:
+            chunks.append(current)
+            current = line
+        else:
+            current += line
+    if current:
+        chunks.append(current)
+    return chunks or [""]
+
+
+async def send_report_text(ctx, text):
+    """Post the report as chat text, wrapped in code blocks to keep the column alignment."""
+    for chunk in _split_for_discord(text):
+        await ctx.send(f"```\n{chunk}\n```")
+
 
 class AnalyzeCog(commands.Cog, name="Analyze"):
     """ADOFAI record analysis commands."""
@@ -61,60 +90,20 @@ class AnalyzeCog(commands.Cog, name="Analyze"):
             await status_msg.edit(content=f"**An error occurred**: `{e}`")
             return
 
-        meta, stats = result["meta"], result["stats"]
         logger.info(f"done: {attachment.filename}")
 
         if result["png"] is None:
-            txt_file = discord.File(
-                fp=io.BytesIO(result["txt"].encode("utf-8")),
-                filename=f"{meta.get('songName', 'report')}_info.txt",
-            )
-            await status_msg.edit(
-                content=f"**{meta.get('songName', 'Unknown')}**"
-            )
-            await ctx.send(file=txt_file)
+            await status_msg.delete()
+            await send_report_text(ctx, result["txt"])
             return
 
-        files_to_send = [
-            discord.File(
-                fp=io.BytesIO(result["txt"].encode("utf-8")),
-                filename="analysis_report.txt",
-            ),
-            discord.File(
-                fp=result["png"], filename=f"chart_{result['chart_type']}.png"
-            ),
-        ]
-
-        embed = discord.Embed(
-            title={meta.get('songName', 'Unknown Level')},
-            description=f"**Version**: `{meta.get('versionText', 'N/A')}`",
-            color=0x3498DB,
-        )
-        embed.add_field(
-            name="Total Hits",
-            value=f"{stats.get('totalHits', 0):,}",
-            inline=True,
-        )
-        embed.add_field(
-            name="UR (Unstable Rate)",
-            value=f"{stats.get('ur', 0):.2f}",
-            inline=True,
-        )
-        embed.add_field(
-            name="XACC", value=f"{stats.get('xacc', 0):.2f}%", inline=True
-        )
-        embed.add_field(
-            name="Mean", value=f"{stats.get('mean', 0):.2f} ms", inline=True
-        )
-        embed.add_field(
-            name="StdDev", value=f"{stats.get('stdDev', 0):.2f} ms", inline=True
-        )
-        embed.add_field(
-            name="Max Combo", value=str(stats.get("maxCombo", 0)), inline=True
+        chart_file = discord.File(
+            fp=result["png"], filename=f"chart_{result['chart_type']}.png"
         )
 
         await status_msg.delete()
-        await ctx.send(embed=embed, files=files_to_send)
+        await ctx.send(file=chart_file)
+        await send_report_text(ctx, result["txt"])
 
     @commands.command(name="decode", aliases=["dc"])
     async def decode_record(self, ctx):
